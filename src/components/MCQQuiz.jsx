@@ -26,6 +26,7 @@ export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
   const [current, setCurrent]     = useState(0)
   const [score, setScore]         = useState(0)
   const [chosen, setChosen]       = useState(null)
+  const [options, setOptions]     = useState([])   // fixed per question
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState(null)
 
@@ -43,11 +44,21 @@ export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
         setLoading(false)
         return
       }
-      setQuestions(selectQuestions(data, QUESTIONS_PER_SESSION))
+      const selected = selectQuestions(data, QUESTIONS_PER_SESSION)
+      setQuestions(selected)
+      setOptions(buildOptions(selected[0]))
       setLoading(false)
     }
     fetchQuestions()
   }, [section.key])
+
+  function buildOptions(q) {
+    if (!q) return []
+    return shuffle([
+      { text: q.answer, cn: q.answer_cn, correct: true },
+      ...q.options.map(o => ({ text: o.t, cn: o.c, correct: false })),
+    ])
+  }
 
   if (loading) return <div className="screen center"><div className="spinner" /></div>
   if (error) return (
@@ -58,15 +69,16 @@ export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
   )
 
   const q = questions[current]
-  const options = q ? shuffle([
-    { text: q.answer, cn: q.answer_cn, correct: true },
-    ...q.options.map(o => ({ text: o.t, cn: o.c, correct: false })),
-  ]) : []
 
   function handleAnswer(opt) {
     if (chosen) return
     setChosen(opt)
     if (opt.correct) setScore(s => s + 1)
+  }
+
+  function handleRetry() {
+    // reset answer only — score point already lost, options stay in same order
+    setChosen(null)
   }
 
   async function handleNext() {
@@ -81,8 +93,10 @@ export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
       onComplete({ score, total: questions.length, studentName, section: section.key })
       return
     }
-    setCurrent(c => c + 1)
+    const nextIdx = current + 1
+    setCurrent(nextIdx)
     setChosen(null)
+    setOptions(buildOptions(questions[nextIdx]))  // fresh shuffle for next question
   }
 
   const progress = (current / questions.length) * 100
@@ -133,9 +147,17 @@ export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
           )}
           {q.explanation && <p className="fb-explain">{q.explanation}</p>}
           {q.explain_cn  && <p className="fb-explain cn">{q.explain_cn}</p>}
-          <button className="btn-primary" onClick={handleNext}>
-            {current + 1 >= questions.length ? 'See Results' : 'Next →'}
-          </button>
+
+          <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.25rem' }}>
+            {!chosen.correct && (
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={handleRetry}>
+                ↩ Retry
+              </button>
+            )}
+            <button className="btn-primary" style={{ flex: 2 }} onClick={handleNext}>
+              {current + 1 >= questions.length ? 'See Results' : 'Next →'}
+            </button>
+          </div>
         </div>
       )}
     </div>
