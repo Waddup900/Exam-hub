@@ -14,6 +14,12 @@ export const SECTIONS = [
   { key: 'active_passive',        label: 'Active / Passive',      cn: '主被动语态', type: 'rearrange'   },
   { key: 'rational_cloze',        label: 'Rational Cloze',        cn: '理性填空',   type: 'cloze'       },
   { key: 'reading_comprehension', label: 'Reading Comprehension', cn: '阅读理解',   type: 'reading'     },
+  { key: 'grammar_rule1',     label: 'Be Verbs (Present)',   cn: '语法：is/am/are',  type: 'fill' },
+  { key: 'grammar_rule2',     label: 'Was/Were (Past)',      cn: '语法：was/were',   type: 'fill' },
+  { key: 'grammar_rule3',     label: 'Subject-Verb Agreement', cn: '语法：主谓一致', type: 'fill' },
+  { key: 'grammar_rule4',     label: 'Modals + Base Form',   cn: '语法：情态动词',   type: 'fill' },
+  { key: 'grammar_rule5',     label: 'To + Base Form',       cn: '语法：不定式',     type: 'fill' },
+  { key: 'grammar_verbforms', label: 'Verb Forms',           cn: '动词变形',         type: 'fill' },
 ]
 
 export default function App() {
