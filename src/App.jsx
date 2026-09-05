@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Menu from './components/Menu'
 import QuizShell from './components/QuizShell'
 import ScoreScreen from './components/ScoreScreen'
+import Login from './components/Login'
+import Wallet from './components/Wallet'
+import WalletBadge from './components/WalletBadge'
+import { supabase } from './lib/supabaseClient'
 import './App.css'
 
 export const SECTIONS = [
@@ -29,9 +33,35 @@ export const SECTIONS = [
 ]
 
 export default function App() {
+  const [user, setUser]                   = useState(null)
+  const [profile, setProfile]             = useState(null)
+  const [checkingSession, setCheckingSession] = useState(true)
+
   const [screen, setScreen]               = useState('menu')
   const [section, setSection]             = useState(null)
   const [sessionResult, setSessionResult] = useState(null)
+
+  // Runs ONCE when the app first opens — asks Supabase "is anyone
+  // already logged in from before?" so they don't retype a password
+  // every single time they open the site.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+      setCheckingSession(false)
+    })
+  }, [])
+
+  // Once we know who's logged in, fetch their chosen username — this
+  // is what replaces the old "type your name" step in QuizShell.
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle()
+      .then(({ data }) => setProfile(data))
+  }, [user])
 
   function handleSelectSection(sec) {
     setSection(sec)
@@ -49,14 +79,31 @@ export default function App() {
     setScreen('menu')
   }
 
+  // Still checking for an existing session — show nothing important yet.
+  if (checkingSession) {
+    return <p>Loading...</p>
+  }
+
+  // No logged-in user — show ONLY the login screen. Nothing below
+  // this line runs until someone logs in.
+  if (!user) {
+    return <Login onLogin={setUser} />
+  }
+
   return (
     <div className="app">
+      <div className="app-header">
+        <WalletBadge user={user} onClick={() => setScreen('wallet')} />
+      </div>
+
       {screen === 'menu' && (
         <Menu sections={SECTIONS} onSelect={handleSelectSection} />
       )}
       {screen === 'quiz' && section && (
         <QuizShell
           section={section}
+          user={user}
+          studentName={profile?.username ?? ''}
           onComplete={handleQuizComplete}
           onBack={handleMenu}
         />
@@ -67,6 +114,12 @@ export default function App() {
           onRetry={() => setScreen('quiz')}
           onMenu={handleMenu}
         />
+      )}
+      {screen === 'wallet' && (
+        <div>
+          <button onClick={handleMenu}>← Back</button>
+          <Wallet user={user} />
+        </div>
       )}
     </div>
   )
