@@ -8,16 +8,37 @@ function shuffle(arr) {
 }
 
 function selectQuestions(data, count) {
+  // If the total pool is smaller than target count, shuffle and return all
+  if (data.length <= count) return shuffle(data)
+
+  // 1. Group questions by their correct answer
   const grouped = data.reduce((acc, q) => {
     if (!acc[q.answer]) acc[q.answer] = []
     acc[q.answer].push(q)
     return acc
   }, {})
-  const keys = shuffle(Object.keys(grouped)).slice(0, count)
-  const selected = keys.map(k => {
-    const pool = grouped[k]
-    return pool[Math.floor(Math.random() * pool.length)]
+
+  // 2. Guarantee 1 question per unique answer key
+  const selected = []
+  const usedIds = new Set()
+
+  Object.keys(grouped).forEach(key => {
+    const pool = grouped[key]
+    const picked = pool[Math.floor(Math.random() * pool.length)]
+    selected.push(picked)
+    usedIds.add(picked.id || JSON.stringify(picked)) // Track selected questions
   })
+
+  // 3. Fill remaining quota up to 'count' from unused questions
+  const remainingPool = data.filter(q => !usedIds.has(q.id || JSON.stringify(q)))
+  const needed = count - selected.length
+
+  if (needed > 0) {
+    const extra = shuffle(remainingPool).slice(0, needed)
+    selected.push(...extra)
+  }
+
+  // 4. Shuffle the combined selection so the order is randomized
   return shuffle(selected)
 }
 
