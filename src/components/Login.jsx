@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
-// Students think in "username + password", not email — so we alias
-// username -> a fake email under the hood. Supabase Auth still handles
-// real sessions/JWTs/password hashing; we're just hiding the email concept.
 function usernameToEmail(username) {
   return `${username.trim().toLowerCase()}@examhub.local`;
 }
@@ -72,61 +69,56 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    // No deposit is written here on purpose — wallet_deposits has no
-    // student-insert policy. Add each new student's RM100 starting
-    // deposit yourself in the Supabase SQL editor once they've signed up
-    // (see README, "Tomorrow" section).
     onLogin(data.user);
   }
 
   return (
-    <div className="login-screen">
-      <h1>ExamHub</h1>
+    <div className="screen name-screen">
+      <div className="name-card">
+        <h2 className="name-title">ExamHub</h2>
+        <p className="name-hint">
+          {mode === 'signin' ? 'Log in to continue' : 'Create your account'}
+        </p>
 
-      <div className="login-tabs">
-        <button
-          className={mode === 'signin' ? 'active' : ''}
-          onClick={() => setMode('signin')}
-        >
-          Log In
-        </button>
-        <button
-          className={mode === 'signup' ? 'active' : ''}
-          onClick={() => setMode('signup')}
-        >
-          New Student
-        </button>
-      </div>
-
-      <form onSubmit={mode === 'signin' ? handleSignIn : handleSignUp}>
-        <label>
-          Username
+        <form onSubmit={mode === 'signin' ? handleSignIn : handleSignUp}>
           <input
+            className="name-input"
             type="text"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
+            autoFocus
             required
           />
-        </label>
-
-        <label>
-          Password
           <input
+            className="name-input"
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
             required
           />
-        </label>
 
-        {error && <p className="login-error">{error}</p>}
+          {error && <p className="error-msg">{error}</p>}
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Please wait...' : mode === 'signin' ? 'Log In' : 'Create Account'}
+          <button className="btn-primary" type="submit" disabled={loading}>
+            {loading ? 'Please wait...' : mode === 'signin' ? 'Log In' : 'Create Account'}
+          </button>
+        </form>
+
+        <button
+          className="btn-secondary"
+          style={{ marginTop: '0.75rem' }}
+          onClick={() => {
+            setError('');
+            setMode(mode === 'signin' ? 'signup' : 'signin');
+          }}
+        >
+          {mode === 'signin' ? 'New student? Create an account' : 'Already have an account? Log in'}
         </button>
-      </form>
+      </div>
     </div>
   );
 }
