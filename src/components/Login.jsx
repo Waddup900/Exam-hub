@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 
 // Students think in "username + password", not email — so we alias
 // username -> a fake email under the hood. Supabase Auth still handles

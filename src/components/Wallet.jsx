@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 
 // Labels for the "git log" style ledger — short tag, sign, amount, reason.
 const SOURCE_LABEL = {

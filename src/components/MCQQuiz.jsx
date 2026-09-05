@@ -42,7 +42,7 @@ function selectQuestions(data, count) {
   return shuffle(selected)
 }
 
-export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
+export default function MCQQuiz({ section, studentName, user, onComplete, onBack }) {
   const [questions, setQuestions] = useState([])
   const [current, setCurrent]     = useState(0)
   const [score, setScore]         = useState(0)
@@ -105,7 +105,11 @@ export default function MCQQuiz({ section, studentName, onComplete, onBack }) {
   async function handleNext() {
     const isLast = current + 1 >= questions.length
     if (isLast) {
+      // student_id added here — this is the ONLY line that changed in
+      // this function. It's what lets the weekly interest job see
+      // "this student did an exercise this week."
       await supabase.from('sessions').insert({
+        student_id: user?.id,
         student_name: studentName,
         section: section.key,
         score,
