@@ -5,7 +5,8 @@ import ScoreScreen from './components/ScoreScreen'
 import Login from './components/Login'
 import Wallet from './components/Wallet'
 import WalletBadge from './components/WalletBadge'
-import { supabase } from './lib/supabaseClient'
+import LogoutButton from './components/LogoutButton'
+import { supabase } from './lib/supabase'
 import './App.css'
 
 export const SECTIONS = [
@@ -92,8 +93,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="app-header">
+      <div className="app-header" style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', justifyContent: 'flex-end', padding: '0.75rem 1rem' }}>
         <WalletBadge user={user} onClick={() => setScreen('wallet')} />
+        <LogoutButton onLoggedOut={() => setUser(null)} />
       </div>
 
       {screen === 'menu' && (
