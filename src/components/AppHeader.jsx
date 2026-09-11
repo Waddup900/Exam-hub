@@ -6,13 +6,15 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
   const [activeThisWeek, setActiveThisWeek] = useState(false)
 
   useEffect(() => {
-    if (!user) return
+    if (!user?.id) return
+
     supabase
       .from('wallet_balance')
       .select('balance')
       .eq('student_id', user.id)
       .maybeSingle()
       .then(({ data }) => setBalance(data?.balance ?? 0))
+      .catch((err) => console.error('Header balance error:', err))
 
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     supabase
@@ -21,12 +23,15 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
       .eq('student_id', user.id)
       .gte('completed_at', sevenDaysAgo)
       .then(({ count }) => setActiveThisWeek((count ?? 0) > 0))
+      .catch((err) => console.error('Header session error:', err))
   }, [user])
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    onLoggedOut()
+    if (onLoggedOut) onLoggedOut()
   }
+
+  const dotColor = activeThisWeek ? '#22c55e' : '#52525b'
 
   return (
     <div className="eh-header">
@@ -35,16 +40,17 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
           position: fixed; top: 0; left: 0; right: 0;
           display: flex; justify-content: space-between; align-items: center;
           padding: 0.75rem 1.25rem;
-          background: rgba(20, 20, 20, 0.85);
+          background: rgba(20, 20, 20, 0.95);
           backdrop-filter: blur(6px);
           z-index: 100;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           box-sizing: border-box;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         .eh-header-left { display: flex; align-items: center; gap: 0.5rem; }
         .eh-header-dot {
           width: 9px; height: 9px; border-radius: 50%;
-          background: ${'${activeThisWeek ? "#22c55e" : "#52525b"}'};
+          background: ${dotColor};
         }
         .eh-header-username { color: #fff; font-weight: 600; font-size: 0.95rem; }
         .eh-header-right { display: flex; align-items: center; gap: 0.85rem; }
@@ -63,7 +69,7 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
       <div className="eh-header-left">
         <span
           className="eh-header-dot"
-          style={{ background: activeThisWeek ? '#22c55e' : '#52525b' }}
+          style={{ background: dotColor }}
           title={activeThisWeek ? 'Active this week' : 'No exercise yet this week'}
         />
         <span className="eh-header-username">{username || 'Student'}</span>
@@ -71,7 +77,7 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
 
       <div className="eh-header-right">
         <button className="eh-header-balance" onClick={onWalletClick}>
-          {balance === null ? '...' : `RM${balance.toFixed(2)}`}
+          {balance === null ? '...' : `RM${Number(balance).toFixed(2)}`}
         </button>
         <button className="eh-header-logout" onClick={handleLogout}>Log out</button>
       </div>
