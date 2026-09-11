@@ -4,8 +4,7 @@ import QuizShell from './components/QuizShell'
 import ScoreScreen from './components/ScoreScreen'
 import Login from './components/Login'
 import Wallet from './components/Wallet'
-import WalletBadge from './components/WalletBadge'
-import LogoutButton from './components/LogoutButton'
+import AppHeader from './components/AppHeader'
 import { supabase } from './lib/supabase'
 import './App.css'
 
@@ -42,9 +41,6 @@ export default function App() {
   const [section, setSection]             = useState(null)
   const [sessionResult, setSessionResult] = useState(null)
 
-  // Runs ONCE when the app first opens — asks Supabase "is anyone
-  // already logged in from before?" so they don't retype a password
-  // every single time they open the site.
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null)
@@ -52,8 +48,6 @@ export default function App() {
     })
   }, [])
 
-  // Once we know who's logged in, fetch their chosen username — this
-  // is what replaces the old "type your name" step in QuizShell.
   useEffect(() => {
     if (!user) return
     supabase
@@ -80,23 +74,23 @@ export default function App() {
     setScreen('menu')
   }
 
-  // Still checking for an existing session — show nothing important yet.
   if (checkingSession) {
     return <p>Loading...</p>
   }
 
-  // No logged-in user — show ONLY the login screen. Nothing below
-  // this line runs until someone logs in.
   if (!user) {
     return <Login onLogin={setUser} />
   }
 
   return (
     <div className="app">
-      <div className="app-header" style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', justifyContent: 'flex-end', padding: '0.75rem 1rem' }}>
-        <WalletBadge user={user} onClick={() => setScreen('wallet')} />
-        <LogoutButton onLoggedOut={() => setUser(null)} />
-      </div>
+      <AppHeader
+        user={user}
+        username={profile?.username}
+        onWalletClick={() => setScreen('wallet')}
+        onLoggedOut={() => setUser(null)}
+      />
+      <div className="eh-header-spacer" />
 
       {screen === 'menu' && (
         <Menu sections={SECTIONS} onSelect={handleSelectSection} />
