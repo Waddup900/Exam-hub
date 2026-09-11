@@ -6,25 +6,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      selfDestroying: true, // Forces browser to unregister the service worker and wipe cached builds
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Your Exam Platform',
         short_name: 'ExamApp',
-        description: 'English grammar & vocab practice',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
-        icons: [
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512x512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
-      },
-      workbox: {
-        // caching strategy for offline support
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       }
     })
   ],
