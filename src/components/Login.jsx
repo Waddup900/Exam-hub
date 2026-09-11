@@ -58,7 +58,8 @@ export default function Login({ onLogin }) {
 
     if (signUpError) {
       setLoading(false);
-      setError('That username is already taken, or something went wrong.');
+      console.error('Supabase signUp error:', signUpError); // check browser console (F12)
+      setError(signUpError.message); // showing the REAL reason while debugging
       return;
     }
 
