@@ -82,8 +82,8 @@ export default function Login({ onLogin }) {
     <div className="eh-login-wrap">
       <style>{`
         .eh-login-wrap {
-          min-height: 100vh;
-          width: 100%;
+          position: fixed;
+          inset: 0;
           display: flex;
           align-items: center;
           justify-content: center;
