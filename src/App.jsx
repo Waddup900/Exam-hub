@@ -1,122 +1,80 @@
-import { useState, useEffect } from 'react'
-import Menu from './components/Menu'
-import QuizShell from './components/QuizShell'
-import ScoreScreen from './components/ScoreScreen'
-import Login from './components/Login'
-import Wallet from './components/Wallet'
-import AppHeader from './components/AppHeader'
-import { supabase } from './lib/supabase'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 
-export const SECTIONS = [
-  //{ key: 'idioms',                label: 'Idioms',                cn: '成语',       type: 'mcq'         },
-  //{ key: 'synonyms',              label: 'Synonyms',              cn: '同义词',     type: 'fill'        },
-  //{ key: 'vocab',                 label: 'Vocabulary',            cn: '词汇',       type: 'mcq'         },
- // { key: 'phrasal_verbs',         label: 'Phrasal Verbs',         cn: '短语动词',   type: 'mcq'         },
- // { key: 'language_functions',    label: 'Language Functions',    cn: '语言功能',   type: 'mcq'         },
-  //{ key: 'past_perfect',          label: 'Past Perfect',          cn: '过去完成式', type: 'multi_blank' },
-  //{ key: 'active_passive',        label: 'Active / Passive',      cn: '主被动语态', type: 'rearrange'   },
- // { key: 'rational_cloze',        label: 'Rational Cloze',        cn: '理性填空',   type: 'cloze'       },
- // { key: 'reading_comprehension', label: 'Reading Comprehension', cn: '阅读理解',   type: 'reading'     },
-  //{ key: 'grammar_rule1',     label: '1 Be Verbs (Present)',   cn: '语法：is/am/are',  type: 'fill' },
-  //{ key: 'grammar_rule2',     label: '2 Was/Were (Past)',      cn: '语法：was/were',   type: 'fill' },
-  //{ key: 'grammar_rule3',     label: '3 Subject-Verb Agreement', cn: '语法：主谓一致', type: 'fill' },
-  //{ key: 'grammar_rule4',     label: '4 Modals + Base Form',   cn: '语法：情态动词',   type: 'fill' },
-  //{ key: 'grammar_rule5',     label: '5 To + Base Form',       cn: '语法：不定式',     type: 'fill' },
-  //{ key: 'grammar_verbforms', label: 'Verb Forms',           cn: '动词变形',         type: 'fill' },
-  { key: 'idioms_3', label: 'Idioms 3',           cn: '言语',         type: 'mcq' },
-  { key: 'vocab_3', label: 'Vocab 3',           cn: '词语',         type: 'mcq' },
-  { key: 'synonyms_3', label: 'Synonyms 3',           cn: '同义字',         type: 'fill' },
-  { key: 'phrasalverbs_take', label: 'Phrasal Verbs (Take)',           cn: '短语动词',         type: 'mcq' },
-  { key: 'phrasalverbs_look', label: 'Phrasal Verbs (Look)',           cn: '短语动词',         type: 'mcq' },
-  { key: 'grammar_conjunctions', label: 'Conjunctions',           cn: '连词',         type: 'mcq' },
-]
-
-export default function App() {
-  const [user, setUser]                   = useState(null)
-  const [profile, setProfile]             = useState(null)
-  const [checkingSession, setCheckingSession] = useState(true)
-
-  const [screen, setScreen]               = useState('menu')
-  const [section, setSection]             = useState(null)
-  const [sessionResult, setSessionResult] = useState(null)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null)
-      setCheckingSession(false)
-    })
-  }, [])
+export default function AppHeader({ user, username, onWalletClick, onLoggedOut }) {
+  const [balance, setBalance] = useState(null)
+  const [activeThisWeek, setActiveThisWeek] = useState(false)
 
   useEffect(() => {
     if (!user) return
     supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', user.id)
+      .from('wallet_balance')
+      .select('balance')
+      .eq('student_id', user.id)
       .maybeSingle()
-      .then(({ data }) => setProfile(data))
+      .then(({ data }) => setBalance(data?.balance ?? 0))
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    supabase
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', user.id)
+      .gte('completed_at', sevenDaysAgo)
+      .then(({ count }) => setActiveThisWeek((count ?? 0) > 0))
   }, [user])
 
-  function handleSelectSection(sec) {
-    setSection(sec)
-    setScreen('quiz')
-  }
-
-  function handleQuizComplete(result) {
-    setSessionResult(result)
-    setScreen('score')
-  }
-
-  function handleMenu() {
-    setSection(null)
-    setSessionResult(null)
-    setScreen('menu')
-  }
-
-  if (checkingSession) {
-    return <p>Loading...</p>
-  }
-
-  if (!user) {
-    return <Login onLogin={setUser} />
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    onLoggedOut()
   }
 
   return (
-    <div className="app">
-      <AppHeader
-        user={user}
-        username={profile?.username}
-        onWalletClick={() => setScreen('wallet')}
-        onLoggedOut={() => setUser(null)}
-      />
-      <div className="eh-header-spacer" />
+    <div className="eh-header">
+      <style>{`
+        .eh-header {
+          position: fixed; top: 0; left: 0; right: 0;
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 0.75rem 1.25rem;
+          background: rgba(20, 20, 20, 0.85);
+          backdrop-filter: blur(6px);
+          z-index: 100;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          box-sizing: border-box;
+        }
+        .eh-header-left { display: flex; align-items: center; gap: 0.5rem; }
+        .eh-header-dot {
+          width: 9px; height: 9px; border-radius: 50%;
+          background: ${'${activeThisWeek ? "#22c55e" : "#52525b"}'};
+        }
+        .eh-header-username { color: #fff; font-weight: 600; font-size: 0.95rem; }
+        .eh-header-right { display: flex; align-items: center; gap: 0.85rem; }
+        .eh-header-balance {
+          color: #22c55e; font-weight: 700; font-size: 0.95rem;
+          background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
+        }
+        .eh-header-logout {
+          color: #fff; background: none; border: 1px solid rgba(255,255,255,0.4);
+          border-radius: 6px; padding: 0.3rem 0.7rem; font-size: 0.8rem;
+          cursor: pointer; font-family: inherit;
+        }
+        .eh-header-logout:hover { background: rgba(255,255,255,0.12); }
+      `}</style>
 
-      {screen === 'menu' && (
-        <Menu sections={SECTIONS} onSelect={handleSelectSection} />
-      )}
-      {screen === 'quiz' && section && (
-        <QuizShell
-          section={section}
-          user={user}
-          studentName={profile?.username ?? ''}
-          onComplete={handleQuizComplete}
-          onBack={handleMenu}
+      <div className="eh-header-left">
+        <span
+          className="eh-header-dot"
+          style={{ background: activeThisWeek ? '#22c55e' : '#52525b' }}
+          title={activeThisWeek ? 'Active this week' : 'No exercise yet this week'}
         />
-      )}
-      {screen === 'score' && sessionResult && (
-        <ScoreScreen
-          result={sessionResult}
-          onRetry={() => setScreen('quiz')}
-          onMenu={handleMenu}
-        />
-      )}
-      {screen === 'wallet' && (
-        <div>
-          <button onClick={handleMenu}>← Back</button>
-          <Wallet user={user} />
-        </div>
-      )}
+        <span className="eh-header-username">{username || 'Student'}</span>
+      </div>
+
+      <div className="eh-header-right">
+        <button className="eh-header-balance" onClick={onWalletClick}>
+          {balance === null ? '...' : `RM${balance.toFixed(2)}`}
+        </button>
+        <button className="eh-header-logout" onClick={handleLogout}>Log out</button>
+      </div>
     </div>
   )
 }
