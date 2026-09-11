@@ -7,13 +7,15 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
 
   useEffect(() => {
     if (!user) return
+  
     supabase
       .from('wallet_balance')
       .select('balance')
       .eq('student_id', user.id)
       .maybeSingle()
       .then(({ data }) => setBalance(data?.balance ?? 0))
-
+      .catch((err) => console.error('Header balance error:', err))
+  
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     supabase
       .from('sessions')
@@ -21,6 +23,7 @@ export default function AppHeader({ user, username, onWalletClick, onLoggedOut }
       .eq('student_id', user.id)
       .gte('completed_at', sevenDaysAgo)
       .then(({ count }) => setActiveThisWeek((count ?? 0) > 0))
+      .catch((err) => console.error('Header session error:', err))
   }, [user])
 
   async function handleLogout() {
