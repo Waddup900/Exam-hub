@@ -1,13 +1,11 @@
 import MCQQuiz        from './MCQQuiz'
-import FillQuiz       from './FillQuiz'
-import MultiBlankQuiz from './MultiBlankQuiz'
-import RearrangeQuiz  from './RearrangeQuiz'
-import ClozeQuiz      from './ClozeQuiz'
-import ReadingQuiz    from './ReadingQuiz'
+import FillQuiz        from './FillQuiz'
+import MultiBlankQuiz  from './MultiBlankQuiz'
+import RearrangeQuiz   from './RearrangeQuiz'
+import ClozeQuiz        from './ClozeQuiz'
+import ReadingQuiz      from './ReadingQuiz'
+import VocabDragQuiz    from './VocabDragQuiz'
 
-// No more name-entry screen — `studentName` and `user` now come in
-// already resolved from App.jsx (via login + the profiles fetch),
-// so there's nothing left to ask the student here.
 export default function QuizShell({ section, studentName, user, onComplete, onBack }) {
   const props = { section, studentName, user, onComplete, onBack }
 
@@ -18,6 +16,7 @@ export default function QuizShell({ section, studentName, user, onComplete, onBa
     case 'rearrange':   return <RearrangeQuiz   {...props} />
     case 'cloze':       return <ClozeQuiz        {...props} />
     case 'reading':     return <ReadingQuiz      {...props} />
+    case 'vocab_drag':  return <VocabDragQuiz    {...props} />
     default:            return <p style={{color:'var(--text-muted)'}}>Unknown type</p>
   }
 }

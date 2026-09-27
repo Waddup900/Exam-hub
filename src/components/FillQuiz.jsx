@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
 
-export default function FillQuiz({ section, studentName, onComplete, onBack }) {
+export default function FillQuiz({ section, studentName, user, onComplete, onBack }) {
   const [questions, setQuestions] = useState([])
   const [current, setCurrent]     = useState(0)
   const [score, setScore]         = useState(0)
@@ -40,7 +40,14 @@ export default function FillQuiz({ section, studentName, onComplete, onBack }) {
   async function handleNext() {
     const isLast = current + 1 >= questions.length
     if (isLast) {
-      await supabase.from('sessions').insert({ student_name: studentName, section: section.key, score, total: questions.length })
+      // student_id added — this is the only functional change in this file.
+      await supabase.from('sessions').insert({
+        student_id: user?.id,
+        student_name: studentName,
+        section: section.key,
+        score,
+        total: questions.length,
+      })
       onComplete({ score, total: questions.length, studentName, section: section.key })
       return
     }
