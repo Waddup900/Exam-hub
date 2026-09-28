@@ -10,12 +10,12 @@ import './App.css' // <-- Ensures App.css variables and styles load globally
 const SECTIONS = [
   //{ key: 'idioms_3',            label: 'Idioms 3',                 cn: '言语',             type: 'mcq' },
   //{ key: 'vocab_3',             label: 'Vocab 3',                  cn: '词语',             type: 'mcq' },
-  { key: 'synonymsfinals',          label: 'Synonym Finals',               cn: '同义字',           type: 'fill' },
+  { key: 'synonymsfinals',          label: 'Synonym Finals',               cn: '同义字',           type: 'mcq' },
   //{ key: 'phrasalverbs_take',   label: 'Phrasal Verbs (Take)',     cn: '短语动词',         type: 'mcq' },
   //{ key: 'phrasalverbs_look',   label: 'Phrasal Verbs (Look)',     cn: '短语动词',         type: 'mcq' },
   //{ key: 'grammar_conjunctions',label: 'Conjunctions',             cn: '连词',             type: 'mcq' },
   //{ key: 'grammar',             label: 'Grammar Practice',         cn: '语法练习',         type: 'mcq' },
-  { key: 'vocabfinals',               label: 'Vocab Finals',       cn: '词汇积累',         type: 'fill' },
+  { key: 'vocabfinals',               label: 'Vocab Finals',       cn: '词汇积累',         type: 'mcq' },
   //{ key: 'cloze',               label: 'Cloze Passage',            cn: '完形填空',         type: 'cloze' },
   //{ key: 'reading',             label: 'Reading Comprehension',    cn: '阅读理解',         type: 'reading' },
 ]
