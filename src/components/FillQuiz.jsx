@@ -69,7 +69,9 @@ export default function FillQuiz({ section, studentName, user, onComplete, onBac
 
       <div className="question-card">
         <p className="question-text">{q.prompt}</p>
-        {q.prompt_cn && <p className="question-cn">{q.prompt_cn}</p>}
+        {submitted && q.prompt_cn && (
+          <p className="question-cn">{q.prompt_cn}</p>
+        )}
       </div>
 
       <div className="fill-input-row">
@@ -93,7 +95,10 @@ export default function FillQuiz({ section, studentName, user, onComplete, onBac
       {submitted && (
         <div className={`feedback-box ${isCorrect ? 'fb-correct' : 'fb-wrong'}`}>
           <p className="fb-verdict">{isCorrect ? '✅ Correct!' : '❌ Wrong'}</p>
-          {!isCorrect && <p className="fb-answer">Answer: <strong>{q.answer}</strong>{q.answer_cn && <span className="cn"> · {q.answer_cn}</span>}</p>}
+          <p className="fb-answer">
+            Answer: <strong>{q.answer}</strong>
+            {q.answer_cn && <span className="cn"> · {q.answer_cn}</span>}
+          </p>
           {q.explanation && <p className="fb-explain">{q.explanation}</p>}
           {q.explain_cn  && <p className="fb-explain cn">{q.explain_cn}</p>}
           <button className="btn-primary" onClick={handleNext}>
