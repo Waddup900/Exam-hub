@@ -16,6 +16,9 @@ const SECTIONS = [
   //{ key: 'grammar_conjunctions',label: 'Conjunctions',             cn: '连词',             type: 'mcq' },
   //{ key: 'grammar',             label: 'Grammar Practice',         cn: '语法练习',         type: 'mcq' },
   { key: 'vocabfinals',               label: 'Vocab Finals',       cn: '词汇积累',         type: 'mcq' },
+  { key: 'idioms_finals',          label: 'Idioms Finals',               cn: '言语',           type: 'mcq' },
+  { key: 'phrasalverbs_take/look',          label: 'Phrasal Verbs Go',               cn: '短语动词',           type: 'mcq' },
+  { key: 'grammar_present_perfect_continuous',          label: 'Present Perfect Continuous',               cn: '连词',           type: 'fill' },
   //{ key: 'cloze',               label: 'Cloze Passage',            cn: '完形填空',         type: 'cloze' },
   //{ key: 'reading',             label: 'Reading Comprehension',    cn: '阅读理解',         type: 'reading' },
 ]
