@@ -140,7 +140,9 @@ export default function MCQQuiz({ section, studentName, user, onComplete, onBack
 
       <div className="question-card">
         <p className="question-text">{q.prompt}</p>
-        {q.prompt_cn && <p className="question-cn">{q.prompt_cn}</p>}
+        {chosen && q.prompt_cn && (
+          <p className="question-cn">{q.prompt_cn}</p>
+        )}
         {q.tip && <div className="tip-box">💡 {q.tip}</div>}
       </div>
 
